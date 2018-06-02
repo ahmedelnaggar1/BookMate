@@ -1,0 +1,54 @@
+//Author: Ahmed El-Naggar
+//aelna0@eq.edu.au
+//Teacher: Mr. Biggs
+
+unit CGuest;
+
+interface
+
+type TGuest = class 
+
+    private
+
+        name     : String;
+        id       : Integer;
+        seat_num : Integer; // Seat number
+
+    published
+
+        constructor create(name : String; id : Integer);
+
+        procedure set_name(name : String);
+
+        function get_id() : Integer;
+        function get_name() : String;
+
+end;
+
+implementation
+
+function TGuest.get_name() : String;
+begin
+
+    Result := self.name;
+  
+end;
+
+function TGuest.get_seat() : Integer;
+begin
+
+    Result := self.seat_num;
+  
+end;
+
+constructor TGuest.create(name: String; id: Integer);
+begin
+  
+end;
+
+procedure TGuest.set_name(name: String);
+begin
+  
+end;
+
+end.
