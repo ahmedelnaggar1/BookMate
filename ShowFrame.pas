@@ -8,13 +8,10 @@ uses
 
 type
   TFrame1 = class(TFrame)
-    Shape1: TShape;
-    Shape3: TShape;
+    Shape8: TShape;
     Shape2: TShape;
-    Shape4: TShape;
-    Shape5: TShape;
-    Shape6: TShape;
-    Shape7: TShape;
+    Shape3: TShape;
+    Shape1: TShape;
   private
     { Private declarations }
   public

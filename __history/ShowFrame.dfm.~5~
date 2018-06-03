@@ -1,0 +1,18 @@
+object Frame1: TFrame1
+  Left = 0
+  Top = 0
+  Width = 320
+  Height = 240
+  Color = clAppWorkSpace
+  ParentBackground = False
+  ParentColor = False
+  TabOrder = 0
+  object Shape8: TShape
+    Left = 282
+    Top = 52
+    Width = 17
+    Height = 150
+    Brush.Color = clMaroon
+    Pen.Style = psClear
+  end
+end

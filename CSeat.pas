@@ -22,25 +22,28 @@ type TSeat = class
 
     published
 
-        constructor create(type_of_seat : Integer; id : Integer);
+        constructor create(id : Integer);
 
         //function occupy(guest : CGuest.TGuest) : Boolean;
         function is_taken()                : Boolean;
         function get_num()                 : Integer; // Return the seat number
+        function get_type()                : String;
+        function get_price()               : Real;
 
         procedure set_price(price : Real);
         procedure set_id(new_id : Integer);
+        procedure set_type(_type : Integer);
         procedure occupy(taken : Boolean);
 
 end;
 
 implementation
 
-constructor TSeat.create(type_of_seat : Integer; id : Integer);
+constructor TSeat.create(id : Integer);
 begin
-  
-    self._type  := type_of_seat;
+
     self.id     := id;
+    self.taken  := false;
 
     //Initialize the frame
     //frame := TFrame.Create(main_form);
@@ -85,6 +88,12 @@ begin
   self.price := price
 end;
 
+procedure TSeat.set_type(_type : Integer);
+begin
+  self._type := _type;
+end;
+
+
 procedure TSeat.set_id(new_id : Integer);
 begin
   self.id := new_id;
@@ -101,6 +110,23 @@ function TSeat.get_num(): Integer;
 begin
   
     Result := self.id;
+
+end;
+
+function TSeat.get_type(): String;
+begin
+  
+    if(self._type = 0) then 
+        Result := 'Regular'
+    else
+        Result := 'Premium'
+
+end;
+
+function TSeat.get_price(): Real;
+begin
+  
+    Result := self.price;
 
 end;
 

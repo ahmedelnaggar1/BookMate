@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<TgConfig Version="3" SubLevelDisabled="False">
+  <Option Name="namespaceFolder.ShowFrame" Type="System.String" Value="ShowFrame" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.CGuest" Type="System.String" Value="CGuest" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.CShow" Type="System.String" Value="CShow" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.CRender" Type="System.String" Value="CRender" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.Assignment" Type="System.String" Value="Assignment" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.CSeat" Type="System.String" Value="CSeat" Category="General" IsBrowsable="False" />
+</TgConfig>

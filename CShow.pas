@@ -26,7 +26,6 @@ type
     gfx_seats : TObjectList<TShape>; // The actual viewable seats
 
     seat      : CSeat.TSeat;
-    num_seats : Integer; //Number of seats in the show
     guests    : TObjectList<CGuest.TGuest>; // Guests, instances of Guests
 
     name      : String; // Name of the show
@@ -41,6 +40,9 @@ type
     function add_seats(seats : TObjectList<CSeat.TSeat>)     : Boolean;
 
     function get_seats()                                     : TObjectList<TSeat>;
+    function get_seat(seat_num : Integer)                    : TSeat;
+    function get_num_guests()                                : Integer; // Returns the number of guests attending
+    function get_num_seats()                                 : Integer;
 
 end;
 
@@ -79,6 +81,20 @@ function TShow.add_seat(seat : CSeat.TSeat) : Boolean;
 begin
   
   self.seats.Add(seat);
+
+  // If the seat ID is between 0 to 18
+  // then the seat is considered to be a premium seat as it is close to the stage | Premium seat: 1, Regular seat: 0
+  if((seat.get_num >= 0) and (seat.get_num() <= 18)) then
+  begin
+    seat.set_type(1);
+    seat.set_price(30.0);
+  end
+  else
+  begin
+    seat.set_type(0);
+    seat.set_price(10.0);
+  end;
+
   Result := true;
 end;
 
@@ -94,5 +110,23 @@ function TShow.get_seats() : TObjectList<CSeat.TSeat>;
 begin
   Result := self.seats;
 end;
+
+function TShow.get_seat(seat_num : Integer) : CSeat.TSeat;
+begin
+  Result := self.seats[seat_num];
+end;
+
+function TShow.get_num_seats() : Integer;
+begin
+  Result := self.seats.Count;
+end;
+
+
+
+function TShow.get_num_guests() : Integer;
+begin
+  Result := self.guests.Count;
+end;
+
 
 end.

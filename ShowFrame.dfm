@@ -7,46 +7,47 @@ object Frame1: TFrame1
   ParentBackground = False
   ParentColor = False
   TabOrder = 0
-  object Shape1: TShape
-    Left = 113
+  object Shape8: TShape
+    Left = 303
     Top = 0
-    Width = 96
-    Height = 153
-  end
-  object Shape3: TShape
-    Left = 90
-    Top = 20
     Width = 17
-    Height = 17
+    Height = 240
+    Brush.Color = clMaroon
+    Brush.Style = bsDiagCross
+    Pen.Color = clSilver
+    Pen.Style = psDash
   end
   object Shape2: TShape
-    Left = 90
-    Top = 3
-    Width = 17
+    Left = 0
+    Top = 0
+    Width = 305
     Height = 17
+    Brush.Color = clMaroon
+    Brush.Style = bsDiagCross
+    Pen.Color = clSilver
+    Pen.Style = psDash
   end
-  object Shape4: TShape
-    Left = 90
-    Top = 52
+  object Shape3: TShape
+    Left = 0
+    Top = 0
     Width = 17
-    Height = 17
+    Height = 240
+    Brush.Color = clMaroon
+    Brush.Style = bsDiagCross
+    Pen.Color = clSilver
+    Pen.Style = psDash
   end
-  object Shape5: TShape
-    Left = 90
-    Top = 35
-    Width = 17
+  object Shape1: TShape
+    Left = 12
+    Top = 223
+    Width = 277
     Height = 17
-  end
-  object Shape6: TShape
-    Left = 90
-    Top = 84
-    Width = 17
-    Height = 17
-  end
-  object Shape7: TShape
-    Left = 90
-    Top = 67
-    Width = 17
-    Height = 17
+    HelpType = htKeyword
+    Brush.Color = clMaroon
+    Brush.Style = bsDiagCross
+    ParentShowHint = False
+    Pen.Color = clSilver
+    Pen.Style = psDash
+    ShowHint = False
   end
 end
