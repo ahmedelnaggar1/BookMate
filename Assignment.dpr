@@ -7,13 +7,15 @@ uses
   CRender in 'CRender.pas',
   CSeat in 'CSeat.pas',
   CShow in 'CShow.pas',
-  ShowFrame in 'ShowFrame.pas' {Frame1: TFrame};
+  ShowFrame in 'ShowFrame.pas' {Frame1: TFrame},
+  greetingForm in 'greetingForm.pas' {greetingsForm};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TgreetingsForm, greetingsForm);
   Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.

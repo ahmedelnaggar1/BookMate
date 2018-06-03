@@ -26,6 +26,8 @@ type TGuest = class
 
         function get_seat() : Integer;
         function get_name() : String;
+        function get_id()   : Integer;
+        function get_phone() : Integer;
 
 end;
 
@@ -36,6 +38,13 @@ begin
 
     Result := self.name;
   
+end;
+
+function TGuest.get_id() : Integer;
+begin
+
+    Result := self.id;
+
 end;
 
 function TGuest.get_seat() : Integer;
@@ -56,6 +65,13 @@ begin
   
 end;
 
+function TGuest.get_phone() : Integer;
+begin
+
+    Result := self.phone_num;
+
+end;
+
 constructor TGuest.create(name: String; id: Integer);
 begin
 
@@ -66,12 +82,16 @@ end;
 
 procedure TGuest.set_name(name: String);
 begin
+
+    self.name := name;
   
 end;
 
 procedure TGuest.set_phone(number: Integer);
 begin
   
+    self.phone_num := number;
+
 end;
 
 end.

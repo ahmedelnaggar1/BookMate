@@ -39,10 +39,13 @@ type
     function add_seat(seat   : CSeat.TSeat)                  : Boolean;
     function add_seats(seats : TObjectList<CSeat.TSeat>)     : Boolean;
 
+    function remove_guest(guest : CGuest.TGuest)             : Boolean;                                  
+
     function get_seats()                                     : TObjectList<TSeat>;
     function get_seat(seat_num : Integer)                    : TSeat;
     function get_num_guests()                                : Integer; // Returns the number of guests attending
     function get_num_seats()                                 : Integer;
+    function get_guest(guest_id : Integer)                   : TGuest;
 
 end;
 
@@ -71,6 +74,7 @@ begin
 
   Result := true;
 end;
+
 function TShow.add_guests(guests : TObjectList<CGuest.TGuest>) : Boolean;
 begin
 
@@ -98,12 +102,29 @@ begin
   Result := true;
 end;
 
+function TShow.get_guest(guest_id : Integer) : TGuest;
+begin
+
+  Result := self.guests[guest_id];
+
+end;
+
 //Adds seats to show
 //Parameters:
 // seats (array of TSeat instances)
 function TShow.add_seats(seats : TObjectList<CSeat.TSeat>) : Boolean;
 begin
   
+end;
+
+function TShow.remove_guest(guest : CGuest.TGuest) : Boolean;
+begin
+
+  self.guests.Remove(guest);
+
+  self.seats[ guest.get_seat ].occupy(false);
+
+  Result := true;
 end;
 
 function TShow.get_seats() : TObjectList<CSeat.TSeat>;

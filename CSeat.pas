@@ -5,7 +5,6 @@ unit CSeat;
 
 interface
 
-//uses CGuest;
 uses ShowFrame, Vcl.ExtCtrls, Vcl.Forms; // TShape, TFrame
 
 type TSeat = class
@@ -13,7 +12,6 @@ type TSeat = class
     private
         id         : Integer; // The ID of the seat, ideally should be static and then iterated within this class for every instance,
                               // but that is not possible in delphi apparently
-        //Guest      : CGuest.TGuest;  // The guest occupying the seat
         taken      : Boolean;
 
         price      : Real; 
@@ -24,7 +22,6 @@ type TSeat = class
 
         constructor create(id : Integer);
 
-        //function occupy(guest : CGuest.TGuest) : Boolean;
         function is_taken()                : Boolean;
         function get_num()                 : Integer; // Return the seat number
         function get_type()                : String;
@@ -45,36 +42,7 @@ begin
     self.id     := id;
     self.taken  := false;
 
-    //Initialize the frame
-    //frame := TFrame.Create(main_form);
-
 end;
-
-{
-function TSeat.occupy(guest : CGuest.TGuest) : Boolean;
-begin
-
-    //Check if TGuest is a valid instance, if not leave method
-    if(not Assigned(guest)) then
-      exit;
-
-    self.guest := guest;
-    guest.set_seat(self);
-
-end;
-
-
-function Tseat.taken() : Boolean;
-begin
-
-    if(Assigned(self.Guest)) then
-    begin
-      Result := True
-    end
-    else Result := False
-
-end;
-}
 
 function Tseat.is_taken() : Boolean;
 begin

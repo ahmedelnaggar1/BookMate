@@ -114,20 +114,6 @@ begin
     self.stage.Show();
 
     self.current_seat := 0;
-{
-    x_padding := 0;
-
-    for count := 0 to Trunc((main_frame.width - (self.stage.Width + 34)) / 17) do
-    begin
-
-        if(count = Trunc((self.stage.Left - 17) / 17)) then
-          x_padding := x_padding + 96
-        else
-          x_padding := x_padding + 17;
-
-        self.shapes.Add(self.create_seat(17, 17, Trunc(x_padding), 1, False));
-    end;
-}
 
 
     //----------------------------------------------
@@ -157,7 +143,7 @@ begin
     vert_column_left := 1;
 
     //-17 to compensate for stage boundary
-    for count := 0 to 13 do
+    for count := 0 to 6 do
     begin
 
         if iterator = 7 then
@@ -179,7 +165,7 @@ begin
     iterator := 0;
     vert_column_right := 1;
     
-    for count := 0 to 13 do
+    for count := 0 to 6 do
     begin
         if iterator = 7 then
         begin
@@ -202,35 +188,50 @@ begin
         for count := 0 to Round( (stage.Width * seat_height) / (self.seat_width * self.seat_width) )-1 do
             self.shapes.Add( self.create_seat(seat_width, seat_height, 90 + (count * seat_width) + 23, 
                             stage.Height + (iterator * 23), seats[self.current_seat].is_taken()) ); // +27 for padding from left
-    end
+    end;
 
-
-    //          | REGULAR SEATS |
-
- {   num_of_seats_per_side := Trunc(self.show.get_num_seats() / 3);
-
-    vert_column_left := 1;
-
-    while self.current_seat < self.show.get_num_seats() do
+    iterator := 0;
+    vert_column_left := 2;
+    for count := 0 to 6 do
     begin
 
-        for count := 0 to Trunc((self.show.get_num_seats() - self.current_seat)) - 1 do
+        if iterator = 7 then
         begin
-            //Left side
-            self.shapes.Add( self.create_seat(seat_width, seat_height, stage.Left - (seat_width + 5) - (vert_column_left * seat_width), count * seat_height + 17, seats[self.current_seat].is_taken()) );
-
-            //Right side
-            self.shapes.Add( self.create_seat(seat_width, seat_height, stage.Left + stage.Width + 5 + (vert_column_left * seat_width), count * seat_height + 17, seats[self.current_seat].is_taken()) );
-            iterator := iterator + 1;
-
-            if(iterator = 8) then
-              vert_column_left := vert_column_left + 1;
-
+          vert_column_left := vert_column_left + 1;
+          iterator := 0;
         end;
-        vert_column_left := vert_column_left + 1;
+        x := stage.Left - vert_column_left * 30;
+        y := iterator * seat_height + 17; 
+        //Left side
+        self.shapes.Add( self.create_seat(seat_width, seat_height, x, y, seats[self.current_seat].is_taken()) );
+       
+        iterator := iterator + 1;
 
     end;
- }
+
+    // this is terribly done but it works
+    
+    iterator := 0;
+    vert_column_right := 2;
+    
+    for count := 0 to 6 do
+    begin
+        if iterator = 7 then
+        begin
+          vert_column_right := vert_column_right + 1;
+          iterator := 0;
+        end;
+        x := (stage.Left + 75) + vert_column_right * 30;
+        y := iterator * seat_height + 17; 
+        
+        //Right side
+        self.shapes.Add( self.create_seat(seat_width, seat_height, x, y, seats[self.current_seat].is_taken()) );
+
+        iterator := iterator + 1;
+
+    end;
+
+
 end;
 
 
@@ -281,6 +282,7 @@ end;
 procedure TRender.on_mouse_up(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var shape : TShape;
 var seat  : TSeat;
+var form  : TForm;
 begin
 
     shape := Sender as Tshape;
@@ -328,6 +330,9 @@ begin
 
           self.prev_shape := shape.Tag;
         end;
+
+        // Update the labels
+        
 
     end;
 

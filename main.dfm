@@ -30,9 +30,9 @@ object Form1: TForm1
   object StaticText1: TStaticText
     Left = 8
     Top = 8
-    Width = 158
+    Width = 168
     Height = 23
-    Caption = 'Please select your seats'
+    Caption = 'Please select your seat(s)'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
@@ -84,6 +84,7 @@ object Form1: TForm1
     Height = 27
     Caption = 'Proceed'
     TabOrder = 7
+    OnClick = proceedBtnClick
   end
   object StaticText3: TStaticText
     Left = 382
@@ -138,8 +139,15 @@ object Form1: TForm1
         'MetaDataPackageLoader=TDBXSqliteMetaDataCommandFactory,DbxSqlite' +
         'Driver210.bpl'
       'FailIfMissing=True'
-      'Database=main.db')
-    Left = 256
+      'Database=')
+    Left = 360
+    Top = 224
+  end
+  object SQLQuery1: TSQLQuery
+    MaxBlobSize = -1
+    Params = <>
+    SQLConnection = mainConnection
+    Left = 432
     Top = 240
   end
 end

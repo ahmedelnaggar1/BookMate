@@ -6,13 +6,11 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, ShowFrame, Data.DB,
   Data.SqlExpr, Data.DbxSqlite, System.Generics.Collections, CShow, CGuest, CSeat, CRender,
-  Vcl.StdCtrls, Vcl.Grids, Vcl.ValEdit, System.RegularExpressions;
+  Vcl.StdCtrls, Vcl.Grids, Vcl.ValEdit, System.RegularExpressions, Data.FMTBcd, Math;
 
 type Tickets = class
 
-  guest_name : String;
-  phone_num  : String;
-  seat_num   : Integer;
+  guest : CGuest.TGuest;
   _type : String;
   price : Real; 
 
@@ -20,7 +18,7 @@ end;
 
 type
   TForm1 = class(TForm)
-    mainConnection: TSQLConnection;
+    
     Frame11: TFrame1;
     StaticText1: TStaticText;
     gridTickets: TStringGrid;
@@ -31,11 +29,14 @@ type
     proceedBtn: TButton;
     StaticText3: TStaticText;
     StaticText4: TStaticText;
+    mainConnection: TSQLConnection;
+    SQLQuery1: TSQLQuery;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure gridTicketsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure addticketBtnClick(Sender: TObject);
+    procedure proceedBtnClick(Sender: TObject);
   private
     { Private declarations }
     render : TRender;
@@ -45,7 +46,6 @@ type
     show : TShow;
 
   public
-    { Public declarations }
   end;
 
 var
@@ -104,11 +104,8 @@ begin
       guest.set_phone(StrToInt(guest_phone_num));
       guest.set_seat(seat);
 
-
       // Add the ticket to the list
-      ticket.guest_name := guest_name;
-      ticket.phone_num := guest_phone_num;
-      ticket.seat_num := Frame11.Tag;
+      ticket.guest := guest;
       ticket._type := seat.get_type();
       ticket.price := seat.get_price();
 
@@ -147,9 +144,15 @@ procedure TForm1.FormCreate(Sender: TObject);
 
 var shows   : TObjectList<TShow>;
 var guests  : TObjectList<TGuest>;
-var guest : array[0..20] of TGuest;
+var guest   : TGuest;
 var i : Integer;
 var seat : array[0..50] of TSeat;
+
+var query : String;
+var names : TStringList;
+var temp_list : TList;
+var temp : array [0..1] of String;
+var currentField: TField;
 
 begin
 
@@ -186,7 +189,54 @@ begin
       show.add_seat(seat[i]);
     end;
 
-    //Add guests to show
+    // Load the guests
+
+    // SELECT guests.name, bookings.seat FROM `guests` INNER JOIN bookings ON guests.id = bookings.guest WHERE bookings.show = 0
+
+    query := 'SELECT guests.name, bookings.seat FROM `guests` INNER JOIN bookings ON guests.id = bookings.guest WHERE bookings.show = 0';
+    // This is not safe, we need to escape names
+
+    try
+
+      self.SQLQuery1.SQL.Text := query;
+      self.SQLQuery1.Active := true;
+
+      if not SQLQuery1.IsEmpty then
+      begin
+        SQLQuery1.First;
+        names := TStringList.Create;
+        try
+          SQLQuery1.GetFieldNames(names);
+          while not SQLQuery1.Eof do
+          begin
+            for i := 0 to names.Count - 1 do
+            begin
+              currentField := SQLQuery1.FieldByName(names[i]);
+              temp[i] := CurrentField.AsString;
+            end;
+
+            guest := TGuest.create(temp[0], StrToInt(temp[1]));
+            guest.set_seat(seat[ StrToInt(temp[1]) ]);
+            show.add_guest(guest);
+
+            SQLQuery1.Next;
+          end;
+
+        finally
+          names.Free;
+        end;
+      end;
+
+    except
+      on E: Exception do
+      begin
+        showmessage('Something went wrong :(');
+        exit();
+      end;
+
+    end;
+
+    {// Add guests to show
     for i := 0 to 9 do
     begin
       guest[i] := TGuest.create('blah', i);
@@ -194,7 +244,7 @@ begin
       guest[i].set_seat(seat[i]);
       show.add_guest(guest[i]);
     end;
-
+   }
   //Render show
   self.render := TRender.create(self.Frame11, show);
 
@@ -218,6 +268,18 @@ begin
 
 end;
 
+
+
+
+procedure DeleteRow(Grid: TStringGrid; ARow: Integer);
+var
+  i: Integer;
+begin
+  for i := ARow to Grid.RowCount - 2 do
+    Grid.Rows[i].Assign(Grid.Rows[i + 1]);
+  //Grid.RowCount := Grid.RowCount - 1;
+end;
+
 procedure TForm1.gridTicketsMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 
@@ -231,12 +293,94 @@ begin
     if (gc.X > 0) AND (gc.Y > 0) then
     begin
 
+      // Y : row number, start from 1 because we'll ignore headers
 
+      // Get the name of the guest
+      // Then using that, delete it from the
+      if(Length(gridTickets.Cells[gc.X, gc.Y]) > 0) then
+      begin
+
+        self.show.remove_guest( self.tickets[gc.Y - 1].guest );
+        self.tickets.Count := self.tickets.Count - 1;
+
+        DeleteRow(gridTickets, gc.Y);
+
+        self.render.update();
+
+      end;
 
     end;
-      
+
     
 
 end;
 
+procedure TForm1.proceedBtnClick(Sender: TObject);
+
+var query : String;
+var ticket : main.Tickets;
+var ref_num : Integer;
+var final_str : String;
+begin
+
+  //Save the data into the database
+
+  // Insert guests
+
+  if(self.tickets.count = 0) then
+  begin
+    showmessage('Please add some tickets!');
+    exit();
+  end;
+
+  final_str := '';
+  
+  // Not ideal at all, but I'm lazy...
+  for ticket in self.tickets do
+  begin
+  
+    ref_num := RandomRange(500, 100000);
+  
+    query := 'INSERT INTO `guests` (name, phone_num) VALUES ( "'+ ticket.guest.get_name() +'", '+ IntToStr(ticket.guest.get_phone()) +' )';
+  
+    final_str := final_str + 'Name : ' + ticket.guest.get_name() + ''+AnsiString(#13#10)+'Seat: ' + IntToStr(ticket.guest.get_seat()) + ''+AnsiString(#13#10)+'Reference number: ' + IntToStr(ref_num) + ''+AnsiString(#13#10)+'--------------'+AnsiString(#13#10)+'';
+  
+       try
+    // Assign the query to the object SQLQuery1.
+      SQLQuery1.SQL.Text := query;
+      //SQLQuery1.Active := true;
+      SQLQuery1.ExecSQL();
+    except
+      on E: Exception do
+      begin
+        showmessage('Something went wrong :(');
+        exit;
+      end;
+    end;
+    // Inser their bookings
+
+    query := 'INSERT INTO `bookings` (show, guest, seat, ref_num) VALUES (0, (SELECT `id` FROM `guests` WHERE name="'+ ticket.guest.get_name() +'"), '+ IntToStr(ticket.guest.get_seat()) +', '+ IntToStr(ref_num) +')';
+
+    try
+    // Assign the query to the object SQLQuery1.
+      SQLQuery1.SQL.Text := query;
+      //SQLQuery1.Active := true;
+      SQLQuery1.ExecSQL();
+    except
+      on E: Exception do
+      begin
+        showmessage('Something went wrong :(');
+        exit();
+      end;
+    end;  
+  end;
+
+  showmessage(final_str);
+
+  
+end;
+
+
 end.
+
+
