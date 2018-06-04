@@ -39,6 +39,7 @@ type
 
         function draw() : Boolean;
         function update() : Boolean;
+        procedure highlight_seat(seat_num : Integer);
 
 end;
 
@@ -338,6 +339,14 @@ begin
 
     // If not, select it
     // Selected seat = seat
+
+end;
+
+procedure TRender.highlight_seat(seat_num : Integer);
+begin
+    // Highlights a specific seat
+
+    self.shapes[seat_num].Brush.Color := clBlue;
 
 end;
 

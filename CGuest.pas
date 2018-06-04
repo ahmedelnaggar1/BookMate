@@ -14,6 +14,7 @@ type TGuest = class
         name        : String;
         id          : Integer;
         phone_num   : Integer;
+        ref_num     : Integer;
         seat        : TSeat;
 
     published
@@ -22,12 +23,15 @@ type TGuest = class
 
         procedure set_name(name : String);
         procedure set_phone(number : Integer);
+        procedure set_ref_num(ref_num : Integer);
         function  set_seat(seat : TSeat) : Boolean;
+        function  change_seat(new_seat : TSeat) : Boolean;
 
-        function get_seat() : Integer;
-        function get_name() : String;
-        function get_id()   : Integer;
-        function get_phone() : Integer;
+        function get_seat()     : Integer;
+        function get_name()     : String;
+        function get_id()       : Integer;
+        function get_phone()    : Integer;
+        function get_ref_num () : Integer;
 
 end;
 
@@ -65,6 +69,16 @@ begin
   
 end;
 
+function TGuest.change_seat(new_seat : TSeat) : Boolean;
+begin
+    // Unoccupy old seat
+    self.seat.occupy(false);
+    
+    // Occupy new seat
+    self.seat := new_seat;
+    self.seat.occupy(true);
+end;
+
 function TGuest.get_phone() : Integer;
 begin
 
@@ -92,6 +106,18 @@ begin
   
     self.phone_num := number;
 
+end;
+
+procedure TGuest.set_ref_num(ref_num : Integer);
+begin
+    // Sets the reference number
+    self.ref_num := ref_num;
+end;
+
+function TGuest.get_ref_num() : Integer;
+begin
+    // Gets ref num
+    Result := self.ref_num;
 end;
 
 end.

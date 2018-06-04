@@ -1,0 +1,10 @@
+unit globalVars;
+
+interface
+
+  var
+    SelectionType : Integer;
+
+implementation
+
+end.

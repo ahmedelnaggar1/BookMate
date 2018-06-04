@@ -26,7 +26,7 @@ type
     gfx_seats : TObjectList<TShape>; // The actual viewable seats
 
     seat      : CSeat.TSeat;
-    guests    : TObjectList<CGuest.TGuest>; // Guests, instances of Guests
+    guests    : TDictionary<Integer, CGuest.TGuest>;//TObjectList<CGuest.TGuest>; // Guests, instances of Guests
 
     name      : String; // Name of the show
 
@@ -45,7 +45,8 @@ type
     function get_seat(seat_num : Integer)                    : TSeat;
     function get_num_guests()                                : Integer; // Returns the number of guests attending
     function get_num_seats()                                 : Integer;
-    function get_guest(guest_id : Integer)                   : TGuest;
+    function get_guest(guest_id : Integer) : TGuest;//(guest_id : Integer)                   : TGuest;
+    function is_fully_booked()                               : Boolean;
 
 end;
 
@@ -56,7 +57,7 @@ begin
   self.name := name;
 
   self.seats      := TObjectList<CSeat.TSeat>.Create();
-  self.guests     := TObjectList<CGuest.TGuest>.Create();
+  self.guests     := TDictionary<Integer, TGuest>.Create();
 
   self.gfx_seats  := TObjectList<TShape>.Create();
 
@@ -68,7 +69,7 @@ begin
   //Assign the user his/her seat
   //Make sure that seats are made first
 
-  self.guests.Add(guest);
+  self.guests.Add(guest.get_id(), guest);
 
   guest.set_seat(self.seats[guest.get_seat()]);
 
@@ -102,10 +103,23 @@ begin
   Result := true;
 end;
 
+{
 function TShow.get_guest(guest_id : Integer) : TGuest;
 begin
 
   Result := self.guests[guest_id];
+
+end;
+}
+
+function TShow.get_guest(guest_id: Integer) : TGuest;
+var guest : TGuest;
+begin
+
+  if(self.guests.TryGetValue(guest_id, guest)) then
+    Result := guest
+  else
+    Result := Nil;
 
 end;
 
@@ -120,7 +134,7 @@ end;
 function TShow.remove_guest(guest : CGuest.TGuest) : Boolean;
 begin
 
-  self.guests.Remove(guest);
+  self.guests.Remove(guest.get_id());
 
   self.seats[ guest.get_seat ].occupy(false);
 
@@ -149,5 +163,14 @@ begin
   Result := self.guests.Count;
 end;
 
+function TShow.is_fully_booked() : Boolean;
+begin
+
+  if(self.seats.Count = self.guests.Count) then
+    Result := true
+  else
+    Result := false
+
+end;
 
 end.

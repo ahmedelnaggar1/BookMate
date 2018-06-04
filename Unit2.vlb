@@ -1,0 +1,16 @@
+﻿[SQLQuery1]
+Coordinates=121,10,71,51
+
+[DataSetProvider1]
+Coordinates=221,1,116,36
+
+[SQLConnection1]
+Coordinates=221,56,112,36
+
+[ClientDataSet1]
+Coordinates=10,10,87,51
+Visible=True
+
+[]
+Coordinates=116,80,82,33
+
