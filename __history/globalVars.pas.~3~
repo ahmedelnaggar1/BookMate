@@ -1,0 +1,13 @@
+unit globalVars,  Data.SqlExpr // sql stuff;
+
+interface
+
+  var
+    SelectionType : Integer;
+    ref_num       : Integer;
+    main_connection : TSqlConnection;
+
+
+implementation
+
+end.

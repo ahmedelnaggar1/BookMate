@@ -13,6 +13,8 @@ object greetingsForm: TgreetingsForm
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnHide = FormHide
   PixelsPerInch = 96
   TextHeight = 13
@@ -44,7 +46,7 @@ object greetingsForm: TgreetingsForm
     ParentFont = False
     TabOrder = 1
   end
-  object Button1: TButton
+  object bookTicketBtn: TButton
     Left = 64
     Top = 88
     Width = 161
@@ -57,9 +59,9 @@ object greetingsForm: TgreetingsForm
     Font.Style = []
     ParentFont = False
     TabOrder = 2
-    OnClick = Button1Click
+    OnClick = bookTicketBtnClick
   end
-  object Button2: TButton
+  object changeBookingBtn: TButton
     Left = 288
     Top = 88
     Width = 161
@@ -72,6 +74,6 @@ object greetingsForm: TgreetingsForm
     Font.Style = []
     ParentFont = False
     TabOrder = 3
-    OnClick = Button2Click
+    OnClick = changeBookingBtnClick
   end
 end

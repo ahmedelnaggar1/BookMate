@@ -29,8 +29,6 @@ type
     proceedBtn: TButton;
     StaticText3: TStaticText;
     StaticText4: TStaticText;
-    mainConnection: TSQLConnection;
-    SQLQuery1: TSQLQuery;
     procedure FormDestroy(Sender: TObject);
     procedure gridTicketsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -54,6 +52,7 @@ type
 
     edit_mode : Boolean;
     guest_id  : Integer; // For edit mode
+
 
   public
   end;
@@ -80,7 +79,10 @@ begin
   guest_phone_num := phonenumEdit.Text;
 
   if ((Length(guest_name) = 0) or (Length(guest_phone_num) = 0)) then
-    showmessage('Please make sure that you have completed all of the required fields!')
+  begin
+    showmessage('Please make sure that you have completed all of the required fields!');
+    exit;
+  end
   else
   begin
 
@@ -94,12 +96,13 @@ begin
 
     // Make sure that the phone number is actually an integer
 
-    if(not TRegEx.IsMatch(guest_phone_num, '^(?:\+?(61))? ?(?:\((?=.*\)))?(0?[2-57-8])\)? ?(\d\d(?:[- ](?=\d{3})|(?!\d\d[- ]?\d[- ]))\d\d[- ]?\d[- ]?\d{3})$')) then
+    if(not TRegEx.IsMatch(guest_phone_num, '^ ?(?:\((?=.*\)))?(0?[2-57-8])\)? ?(\d\d(?:(?=\d{3})|(?!\d\d[- ]?\d[- ]))\d\d?\d?\d{3})$')) then
     begin
       showmessage('Please enter in a valid phone number');
       exit;
     end;
   end;
+
 
   // If the use is buying a ticket
   if(globalVars.SelectionType = 0)
@@ -125,10 +128,10 @@ begin
         ticket._type := seat.get_type();
         ticket.price := seat.get_price();
 
-        num_tickets := self.tickets.Count + 1; // + 1 Becuase the headers start at 0
+        num_tickets := self.tickets.Count + 1; // + 1 Becuase the headers occupy the '0' position
 
 
-        gridTickets.Cells[0, num_tickets]       := guest_name; // Guest name
+        gridTickets.Cells[0, num_tickets]       := guest_name;      // Guest name
         gridTickets.Cells[1, num_tickets]       := guest_phone_num; // Phone number
         gridTickets.Cells[2, num_tickets]       := IntToStr(Frame11.Tag);  // Seat number
         gridTickets.Cells[3, num_tickets]       := ticket._type; // Type of ticket
@@ -201,8 +204,8 @@ begin
 
   //Call destructor to free memory
   //self.render.destroy();
-  self.mainConnection.Close();
-  self.SQLQuery1.Free();
+  //self.mainConnection.Close();
+  //self.SQLQuery1.Free();
 
 end;
 
@@ -239,83 +242,59 @@ begin
   gridTickets.Cells[3, 0]       := 'Type';
   gridTickets.Cells[4, 0]       := 'Price';
 
-  //Connect to database
+  // Create show
+  show := TShow.create('Happy Days');
+  // Add seats to show
+  for i := 0 to 42 do
+  begin
+    seat[i] := TSeat.create(i);
+    show.add_seat(seat[i]);
+  end;
 
-  mainConnection.Params.Add('Database=main.db');
+  if(globalVars.main_connection.Connected) then
+  begin
 
-  try
+    // Load the guests
+    query := 'SELECT guests.name, bookings.seat, bookings.ref_num, guests.id FROM `guests` INNER JOIN bookings ON guests.id = bookings.guest WHERE bookings.show = 0 ORDER BY guests.id ASC';
+    // This is not safe, we need to escape names
 
-    //Connection established
-    mainConnection.Connected := true;
+    // Get guests from database and add them to show
+    try
 
-    //Start
+      globalVars.main_query.SQL.Text := query;
+      globalVars.main_query.Active := true;
 
-    //Get the shows
-
-    //Create shows
-
-    show := TShow.create('Happy Days');
-
-    //Add seats to show
-
-    for i := 0 to 42 do
-    begin
-      seat[i] := TSeat.create(i);
-      show.add_seat(seat[i]);
-    end;
-
-      // Load the guests
-
-      // SELECT guests.name, bookings.seat FROM `guests` INNER JOIN bookings ON guests.id = bookings.guest WHERE bookings.show = 0
-
-      query := 'SELECT guests.name, bookings.seat, bookings.ref_num, guests.id FROM `guests` INNER JOIN bookings ON guests.id = bookings.guest WHERE bookings.show = 0 ORDER BY guests.id ASC';
-      // This is not safe, we need to escape names
-
-      // Get guests from database and add them to show
-      try
-
-        self.SQLQuery1.SQL.Text := query;
-        self.SQLQuery1.Active := true;
-
-        if not SQLQuery1.IsEmpty then
-        begin
-          SQLQuery1.First;
-          names := TStringList.Create;
-          try
-            SQLQuery1.GetFieldNames(names);
-            while not SQLQuery1.Eof do
+      if not globalVars.main_query.IsEmpty then
+      begin
+        globalVars.main_query.First;
+        names := TStringList.Create;
+        try
+          globalVars.main_query.GetFieldNames(names);
+          while not globalVars.main_query.Eof do
+          begin
+            for i := 0 to names.Count - 1 do
             begin
-              for i := 0 to names.Count - 1 do
-              begin
-                currentField := SQLQuery1.FieldByName(names[i]);
-                temp[i] := CurrentField.AsString;
-              end;
-
-              guest := TGuest.create(temp[0], StrToInt(temp[3]));
-              guest.set_ref_num(StrToInt(temp[2]));
-              guest.set_seat(seat[ StrToInt(temp[1]) ]);
-              show.add_guest(guest);
-
-              SQLQuery1.Next;
+              currentField := globalVars.main_query.FieldByName(names[i]);
+              temp[i] := CurrentField.AsString;
             end;
 
-          finally
-            names.Free;
-          end;
-        end;
-      except
-          on E: Exception do
-          begin
-            showmessage('Something went wrong :(');
-            exit();
-          end;
-      end;
+            guest := TGuest.create(temp[0], StrToInt(temp[3]));
+            guest.set_ref_num(StrToInt(temp[2]));
+            guest.set_seat(seat[ StrToInt(temp[1]) ]);
+            show.add_guest(guest);
 
-  except
-    on E: EDatabaseError do
-    begin
-      ShowMessage('Exception raised with message' + E.Message);
-      exit();
+            globalVars.main_query.Next;
+          end;
+
+        finally
+          names.Free;
+        end;
+      end;
+      except on E: Exception do
+        begin
+          showmessage('Something went wrong :(');
+          exit();
+        end;
     end;
   end;
 
@@ -377,22 +356,22 @@ begin
   ref_num := globalVars.ref_num;
 
   //SELECT guests.name, guests.phone_num, bookings.seat FROM guests JOIN bookings ON bookings.guest = guests.id WHERE bookings.ref_num = 74775
-  query := 'SELECT guests.name, guests.phone_num, bookings.seat, guests.id FROM guests JOIN bookings ON bookings.guest = guests.id WHERE bookings.ref_num = '+ IntToStr(ref_num) + ' AND bookings.active=1 ORDER BY guests.id ASC';
+  //query := 'SELECT guests.name, guests.phone_num, bookings.seat, guests.id FROM guests JOIN bookings ON bookings.guest = guests.id WHERE bookings.ref_num = '+ IntToStr(ref_num) + ' AND bookings.active=1 ORDER BY guests.id ASC';
 
-  self.SQLQuery1.SQL.Text := query;
-  self.SQLQuery1.Active := true;
+//  globalVars.main_query.SQL.Text := query;
+//  globalVars.main_query.Active := true;
 
-  if not SQLQuery1.IsEmpty then
+  if not globalVars.change_booking_query.IsEmpty then
   begin
-    SQLQuery1.First;
+    globalVars.change_booking_query.First;
     names := TStringList.Create;
     try
-      SQLQuery1.GetFieldNames(names);
-      while not SQLQuery1.Eof do
+      globalVars.change_booking_query.GetFieldNames(names);
+      while not globalVars.change_booking_query.Eof do
       begin
         for i := 0 to names.Count - 1 do
         begin
-          currentField := SQLQuery1.FieldByName(names[i]);
+          currentField := globalVars.change_booking_query.FieldByName(names[i]);
           temp[i] := CurrentField.AsString;
         end;
 
@@ -401,11 +380,11 @@ begin
         //show.add_guest(guest);
 
         // Add user's info to grid
-        gridTickets.Cells[0, 1]       := temp[0];//'Guest name';
-        gridTickets.Cells[1, 1]       := temp[1];//'Phone number';
-        gridTickets.Cells[2, 1]       := temp[2];//'Seat #';
-        gridTickets.Cells[3, 1]       := show.get_seat(StrToInt(temp[2])).get_type();//'Type';
-        gridTickets.Cells[4, 1]       := FloatToStr( show.get_seat(StrToInt(temp[2])).get_price() );//'Price';
+        gridTickets.Cells[0, 1]       := temp[0];// 'Guest name';
+        gridTickets.Cells[1, 1]       := temp[1];// 'Phone number';
+        gridTickets.Cells[2, 1]       := temp[2];// 'Seat #';
+        gridTickets.Cells[3, 1]       := show.get_seat(StrToInt(temp[2])).get_type();// 'Type';
+        gridTickets.Cells[4, 1]       := FloatToStr( show.get_seat(StrToInt(temp[2])).get_price() );// 'Price';
 
         // Highlight the seat
         self.render.highlight_seat(show.get_seat(StrToInt(temp[2])).get_num());
@@ -416,11 +395,16 @@ begin
         self.guest_id          := StrToInt(temp[3]);
 
 
-        SQLQuery1.Next;
+        globalVars.change_booking_query.Next;
       end;
     finally
       names.Free;
   end;
+  end
+  else
+  begin
+    self.Hide();
+    showmessage('No booking found!');
   end;
 
 end;
@@ -449,8 +433,6 @@ procedure TbookingForm.Stop;
 begin
   ////Call destructor to free memory
   self.render.destroy();
-  self.mainConnection.Close();
-  //self.SQLQuery1.Free();
 
   ClearStringGrid(self.gridTickets);
 
@@ -554,10 +536,10 @@ begin
     'Seat: ' + IntToStr(ticket.guest.get_seat())
     + ''+AnsiString(#13#10)+
 
-    'Reference number: ' + IntToStr(ref_num)
+    'Price: $' + FloatToStr(ticket.price)
     + ''+AnsiString(#13#10)+
 
-    'Price: ' + FloatToStr(ticket.price)
+    'Reference number: ' + IntToStr(ref_num)
     + ''+AnsiString(#13#10)+
 
     '--------------'
@@ -567,9 +549,9 @@ begin
   
        try
     // Assign the query to the object SQLQuery1.
-      SQLQuery1.SQL.Text := query;
+      globalVars.main_query.SQL.Text := query;
       //SQLQuery1.Active := true;
-      SQLQuery1.ExecSQL();
+      globalVars.main_query.ExecSQL();
     except
       on E: Exception do
       begin
@@ -585,9 +567,9 @@ begin
         query := 'UPDATE `bookings` SET seat='+ IntToStr(ticket.guest.get_seat()) +' WHERE guest='+ IntToStr(ticket.guest.get_id())+'';
     try
     // Assign the query to the object SQLQuery1.
-      SQLQuery1.SQL.Text := query;
+      globalVars.main_query.SQL.Text := query;
       //SQLQuery1.Active := true;
-      SQLQuery1.ExecSQL();
+      globalVars.main_query.ExecSQL();
     except
       on E: Exception do
       begin
@@ -597,7 +579,7 @@ begin
     end;  
   end;
 
-  final_str := final_str + 'Total: ' + FloatToStr(total_price);
+  final_str := final_str + 'Total: $' + FloatToStr(total_price);
 
   showmessage(final_str);
 

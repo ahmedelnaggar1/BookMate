@@ -6,11 +6,11 @@ uses
   CGuest in 'CGuest.pas',
   CRender in 'CRender.pas',
   CSeat in 'CSeat.pas',
-  CShow in 'CShow.pas',
   ShowFrame in 'ShowFrame.pas' {Frame1: TFrame},
   greetingForm in 'greetingForm.pas' {greetingsForm},
   Unit2 in 'Unit2.pas' {Form2},
-  globalVars in 'globalVars.pas';
+  globalVars in 'globalVars.pas',
+  CShow in 'CShow.pas';
 
 {$R *.res}
 

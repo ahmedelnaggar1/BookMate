@@ -11,11 +11,13 @@ type
   TgreetingsForm = class(TForm)
     StaticText1: TStaticText;
     StaticText2: TStaticText;
-    Button1: TButton;
-    Button2: TButton;
-    procedure Button1Click(Sender: TObject);
+    bookTicketBtn: TButton;
+    changeBookingBtn: TButton;
+    procedure bookTicketBtnClick(Sender: TObject);
     procedure FormHide(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure changeBookingBtnClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -29,7 +31,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TgreetingsForm.Button1Click(Sender: TObject);
+procedure TgreetingsForm.bookTicketBtnClick(Sender: TObject);
 begin
 
   if(main.bookingForm.Visible) then
@@ -41,18 +43,68 @@ begin
 end;
 
 
-procedure TgreetingsForm.Button2Click(Sender: TObject);
+procedure TgreetingsForm.changeBookingBtnClick(Sender: TObject);
+var input : String;
 begin
 
-  globalVars.ref_num := StrToInt(inputbox('Reference Number', 'Please enter in your booking reference number:', '0'));
+  while(InputQuery('Reference Number', 'Please enter in your booking reference number:', input)) do
+  begin
+    if TryStrToInt(input, globalVars.ref_num) then
+    begin
 
-  if(main.bookingForm.Visible) then
-    main.bookingForm.Hide();
+      globalVars.change_booking_query.SQL.Text := 'SELECT guests.name, guests.phone_num, bookings.seat, guests.id FROM guests JOIN bookings ON bookings.guest = guests.id WHERE bookings.ref_num = '+ IntToStr(globalVars.ref_num) + ' AND bookings.active=1 ORDER BY guests.id ASC';
+      globalVars.change_booking_query.Active := true;
+      if not globalVars.change_booking_query.IsEmpty then
+      begin
 
-  globalVars.SelectionType := 1;
+        if(main.bookingForm.Visible) then
+        main.bookingForm.Hide();
 
-  main.bookingForm.Show();
+        globalVars.SelectionType := 1;
 
+        main.bookingForm.Show();
+        exit();
+
+      end
+      else
+      begin
+        showmessage('Booking not found!');
+      end;
+    end
+    else
+      showmessage('Please enter in a valid booking number');
+  end;
+end;
+
+procedure TgreetingsForm.FormCreate(Sender: TObject);
+begin
+  globalVars.main_connection := TSQLConnection.Create(self);
+  globalVars.main_query      := TSQLQuery.Create(self);
+  globalVars.change_booking_query := TSQLQuery.Create(self);
+
+  // Connect to Database
+  globalVars.main_connection.DriverName := 'sqlite';
+  globalVars.main_connection.Params.Add('Database=main.db');
+  try
+    globalVars.main_connection.Connected := true;
+    // Succesfully connected to database
+    globalVars.main_query.SQLConnection := globalVars.main_connection;
+    globalVars.change_booking_query.SQLConnection := globalVars.main_connection;
+  except
+  begin
+    showmessage('ERROR: Couldn''t connect to database. Make sure that main.db exists');
+     // Disable buttons
+    bookTicketBtn.Enabled := False;
+    changeBookingBtn.Enabled := False;
+  end;
+
+  end;
+end;
+
+procedure TgreetingsForm.FormDestroy(Sender: TObject);
+begin
+// Disconnect from database
+  globalVars.main_connection.Close();
 end;
 
 procedure TgreetingsForm.FormHide(Sender: TObject);

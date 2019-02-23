@@ -1,7 +1,13 @@
-//This class will handle the rendering of a TShow
+{
+   ____ ____                _           
+  / ___|  _ \ ___ _ __   __| | ___ _ __ 
+ | |   | |_) / _ \ '_ \ / _` |/ _ \ '__|
+ | |___|  _ <  __/ | | | (_| |  __/ |   
+  \____|_| \_\___|_| |_|\__,_|\___|_|   
+                                        
+This class will handle the rendering of a TShow onto a TFrame
 
-//Author: Ahmed El-Naggar
-//aelna0@eq.edu.au
+}
 
 unit CRender;
 
@@ -76,9 +82,9 @@ end;
 
 function TRender.draw() : Boolean;
 {
-    Renders the seats to the frame main_frame
+    Renders the show to the frame main_frame
     Return:
-        result (Boolean): Was the rendering successful or not
+        result (Boolean): was the rendering successful or not
 }
 
 var seats             : TObjectList<TSeat>;
@@ -87,12 +93,12 @@ var count             : Integer;
 
 var num_premium       : Integer; // Number of premium seats
 var current_seat      : Integer;
-var num_of_seats_per_side : Integer; // The number of seats per side (number of guests / 3)
+var num_of_seats_per_side                : Integer; // The number of seats per side (number of guests / 3)
 var vert_column_left, vert_column_right  : Integer; // The number of columns on left side of stage
 
-var x_padding           : Real;
-var iterator            : Integer;
-var x, y                : Integer;
+var x_padding         : Real;
+var iterator          : Integer;
+var x, y              : Integer;
 begin
   
     // Set the size of the frame to 320 x 240
@@ -101,6 +107,7 @@ begin
 
     //----------------------------------------------
     // Create the stage
+    //----------------------------------------------
     self.stage := TShape.Create(main_frame);
     self.stage.Width     := 96;
     self.stage.Height    := 153;
@@ -121,6 +128,7 @@ begin
     //
     //      BEGIN CREATING SEATS
     //
+    //----------------------------------------------
     seats := self.show.get_seats();
 
     count := 0;
@@ -188,9 +196,12 @@ begin
     begin
         for count := 0 to Round( (stage.Width * seat_height) / (self.seat_width * self.seat_width) )-1 do
             self.shapes.Add( self.create_seat(seat_width, seat_height, 90 + (count * seat_width) + 23, 
-                            stage.Height + (iterator * 23), seats[self.current_seat].is_taken()) ); // +27 for padding from left
+                            stage.Height + (iterator * 23), seats[self.current_seat].is_taken()) ); // +23 for padding from left
     end;
 
+    //          | REGULAR SEATS |
+
+    //Left side
     iterator := 0;
     vert_column_left := 2;
     for count := 0 to 6 do
@@ -203,18 +214,16 @@ begin
         end;
         x := stage.Left - vert_column_left * 30;
         y := iterator * seat_height + 17; 
-        //Left side
+        
         self.shapes.Add( self.create_seat(seat_width, seat_height, x, y, seats[self.current_seat].is_taken()) );
        
         iterator := iterator + 1;
 
     end;
-
-    // this is terribly done but it works
     
+    //Right side
     iterator := 0;
     vert_column_right := 2;
-    
     for count := 0 to 6 do
     begin
         if iterator = 7 then
@@ -225,7 +234,6 @@ begin
         x := (stage.Left + 75) + vert_column_right * 30;
         y := iterator * seat_height + 17; 
         
-        //Right side
         self.shapes.Add( self.create_seat(seat_width, seat_height, x, y, seats[self.current_seat].is_taken()) );
 
         iterator := iterator + 1;
@@ -244,30 +252,29 @@ function TRender.create_seat(width: Integer; height: Integer; left: Integer; top
         height      (Integer): The height of the seat
         left        (Integer): Position from the left, x units
         top         (Integer): Position from the top, x units
-        seat_num    (Integer): The seat ID
         taken       (Boolean): Is the seat taken by a Guest
     Return:
         temp_shape (TShape): The final shape object
 }
 var temp_shape : TShape;
 begin
-    temp_shape              := TShape.Create(self.main_frame);
-    temp_shape.Width        := width;
-    temp_shape.Height       := height;
-    temp_shape.Parent       := self.main_frame;
-    temp_shape.Shape        := stRectangle;
+    temp_shape                  := TShape.Create(self.main_frame);
+    temp_shape.Width            := width;
+    temp_shape.Height           := height;
+    temp_shape.Parent           := self.main_frame;
+    temp_shape.Shape            := stRectangle;
 
-    temp_shape.Left         := left;
-    temp_shape.Top          := top;
+    temp_shape.Left             := left;
+    temp_shape.Top              := top;
 
-    temp_shape.OnMouseUp    := self.on_mouse_up;
-    temp_shape.Tag          := self.current_seat;
+    temp_shape.OnMouseUp        := self.on_mouse_up;
+    temp_shape.Tag              := self.current_seat;
 
-    temp_shape.Pen.Style    := psClear;
-    temp_shape.ParentShowHint := False;
-    temp_shape.Hint         := IntToStr( self.current_seat );
+    temp_shape.Pen.Style        := psClear;
+    temp_shape.ParentShowHint   := False;
+    temp_shape.Hint             := IntToStr( self.current_seat );
 
-    temp_shape.ShowHint     := True;
+    temp_shape.ShowHint         := True;
 
 
     if (taken) then temp_shape.Brush.Color := clMaroon
@@ -285,16 +292,13 @@ var shape : TShape;
 var seat  : TSeat;
 var form  : TForm;
 begin
-
+{
+    Handles the clicking of a seat
+}
     shape := Sender as Tshape;
     seat := self.show.get_seat(shape.Tag);
 
-    //showmessage('num: ' + IntToStr(shape.Tag));
-
-    // Check if seat is taken
-        //Two ways to do this, easiest way would be to just check the colour
-        //clRed = taken
-    
+    // Check if seat is taken because we don't want the user to be able to choose already taken seats
     if (not seat.is_taken()) then
     begin
 
@@ -309,18 +313,7 @@ begin
         else
         begin
 
-          // This is for when the user has added a ticket
-          // We don't want anything to happen if the user has already purchased a seat
-          {if(self.main_frame.Tag <> -1) then
-          begin
-            seat := self.show.get_seat(self.main_frame.Tag);
-            if(seat.is_taken()) then
-              self.main_frame.Tag := -1; // Reset
-              exit;
-          end;
-               }
           self.main_frame.Tag := shape.Tag;
-          //showmessage('Seat: ' + IntToStr(self.main_frame.Tag));
 
           // Highlight the seat
           shape.Brush.Color := clGreen;
@@ -332,13 +325,7 @@ begin
           self.prev_shape := shape.Tag;
         end;
 
-        // Update the labels
-        
-
     end;
-
-    // If not, select it
-    // Selected seat = seat
 
 end;
 
@@ -354,6 +341,11 @@ function TRender.update() : Boolean;
 var seat  : TSeat;
 var id    : Integer;
 begin
+{
+    Updates the Render
+    Return:
+        result (Boolean): whether or not the operation was succesful
+}
     // Loop through all seats and make sure that their colours are correct
     for seat in self.show.get_seats() do
     begin
@@ -363,7 +355,6 @@ begin
         begin
 
             // Set seat to red
-            
             self.shapes[id].Brush.Color := clMaroon;
             self.shapes[id].Cursor      := crDefault;
 

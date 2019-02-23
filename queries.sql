@@ -1,0 +1,21 @@
+CREATE TABLE `bookings` (
+	`show`	INTEGER,
+	`guest`	INTEGER,
+	`seat`	INTEGER,
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`active`	INTEGER DEFAULT 1,
+	`ref_num`	INTEGER UNIQUE
+);
+
+CREATE TABLE `guests` (
+	`name`	TEXT,
+	`phone_num`	INTEGER,
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT
+);
+
+CREATE TABLE `shows` (
+	`name`	TEXT,
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`seats`	INTEGER
+);
+

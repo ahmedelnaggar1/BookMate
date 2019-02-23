@@ -132,26 +132,4 @@ object bookingForm: TbookingForm
     Height = 21
     TabOrder = 6
   end
-  object mainConnection: TSQLConnection
-    DriverName = 'Sqlite'
-    Params.Strings = (
-      'DriverUnit=Data.DbxSqlite'
-      
-        'DriverPackageLoader=TDBXSqliteDriverLoader,DBXSqliteDriver210.bp' +
-        'l'
-      
-        'MetaDataPackageLoader=TDBXSqliteMetaDataCommandFactory,DbxSqlite' +
-        'Driver210.bpl'
-      'FailIfMissing=True'
-      'Database=')
-    Left = 202
-    Top = 3
-  end
-  object SQLQuery1: TSQLQuery
-    MaxBlobSize = -1
-    Params = <>
-    SQLConnection = mainConnection
-    Left = 250
-    Top = 3
-  end
 end
