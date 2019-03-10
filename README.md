@@ -60,4 +60,4 @@ All of these classes will make up what is known as the “Interactive module”:
  ![Link Text](https://i.imgur.com/SvSIFQ2.png)
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/ahmedelnaggar1/BookMate/blob/master/LICENSE)
